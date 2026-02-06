@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeviceCheck Pro</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+<header class="header">
+  <div class="brand">
+    <img src="assets/img/logo.svg" alt="DeviceCheck Pro">
+    <span>DeviceCheck Pro</span>
+  </div>
+
+  <nav id="nav">
+    <a href="/" data-route="/">Главная</a>
+    <a href="/speed-test" data-route="/speed-test">Speed</a>
+    <a href="/gamepad-test" data-route="/gamepad-test">Gamepad</a>
+    <a href="/keyboard-test" data-route="/keyboard-test">Keyboard</a>
+    <a href="/mouse-test" data-route="/mouse-test">Mouse</a>
+    <a href="/monitor-test" data-route="/monitor-test">Monitor</a>
+  </nav>
+
+  <div class="actions">
+    <button id="themeToggle">🌓</button>
+    <button id="burger">☰</button>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<script src="assets/js/app.js"></script>
+<script src="assets/js/speed-test.js"></script>
+<script src="assets/js/gamepad.js"></script>
+<script src="assets/js/keyboard.js"></script>
+<script src="assets/js/mouse.js"></script>
+<script src="assets/js/monitor.js"></script>
+</body>
+</html>
