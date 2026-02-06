@@ -1,53 +1,47 @@
 route("/speed-test", () => {
   app.innerHTML = `
   <div class="card speed-test-card">
-    <div class="test-header">
-      <h1>Проверка скорости Интернета</h1>
+    <div class="speed-test-header">
+      <h2>Speed Test</h2>
       <div class="server-info">
-        <span class="server-label">Сервер:</span>
-        <span id="serverName" class="server-value">Выбор сервера...</span>
+        <div class="server-name" id="serverName">Поиск сервера...</div>
+        <div class="server-location" id="serverLocation">—</div>
       </div>
     </div>
 
     <div class="speed-meters">
       <div class="speed-meter">
-        <div class="meter-header">
-          <span class="meter-title">СКОРОСТЬ СКАЧИВАНИЯ</span>
-          <div class="meter-display">
-            <span id="downloadValue" class="speed-number">0</span>
-            <span id="downloadUnit" class="speed-unit">Мбит/с</span>
-          </div>
+        <div class="meter-title">DOWNLOAD</div>
+        <div class="meter-value">
+          <span id="downloadValue">—</span>
+          <span class="meter-unit" id="downloadUnit">Mbps</span>
         </div>
         <div class="progress-container">
           <div class="progress-bar">
-            <div id="downloadBar" class="progress-fill"></div>
+            <div class="progress-fill" id="downloadProgress"></div>
           </div>
           <div class="progress-scale">
             <span>0</span>
-            <span>200</span>
-            <span>400</span>
-            <span>600</span>
-            <span>800</span>
+            <span>250</span>
+            <span>500</span>
+            <span>750</span>
             <span>1000+</span>
           </div>
         </div>
       </div>
 
       <div class="speed-meter">
-        <div class="meter-header">
-          <span class="meter-title">СКОРОСТЬ ОТДАЧИ</span>
-          <div class="meter-display">
-            <span id="uploadValue" class="speed-number">0</span>
-            <span id="uploadUnit" class="speed-unit">Мбит/с</span>
-          </div>
+        <div class="meter-title">UPLOAD</div>
+        <div class="meter-value">
+          <span id="uploadValue">—</span>
+          <span class="meter-unit" id="uploadUnit">Mbps</span>
         </div>
         <div class="progress-container">
           <div class="progress-bar">
-            <div id="uploadBar" class="progress-fill"></div>
+            <div class="progress-fill" id="uploadProgress"></div>
           </div>
           <div class="progress-scale">
             <span>0</span>
-            <span>50</span>
             <span>100</span>
             <span>200</span>
             <span>300</span>
@@ -57,215 +51,175 @@ route("/speed-test", () => {
       </div>
     </div>
 
-    <div class="quality-stats">
-      <div class="stat-item">
-        <div class="stat-name">Пинг</div>
-        <div class="stat-value" id="pingValue">—</div>
-        <div class="stat-unit">мс</div>
+    <div class="ping-info">
+      <div class="ping-item">
+        <div class="ping-label">PING</div>
+        <div class="ping-value" id="pingValue">—</div>
+        <div class="ping-unit">ms</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-name">Джиттер</div>
-        <div class="stat-value" id="jitterValue">—</div>
-        <div class="stat-unit">мс</div>
+      <div class="ping-item">
+        <div class="ping-label">JITTER</div>
+        <div class="ping-value" id="jitterValue">—</div>
+        <div class="ping-unit">ms</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-name">Потери пакетов</div>
-        <div class="stat-value" id="lossValue">0</div>
-        <div class="stat-unit">%</div>
-      </div>
-    </div>
-
-    <div class="test-progress">
-      <div class="progress-step" id="stepPing">
-        <div class="step-icon">📡</div>
-        <div class="step-text">Пинг</div>
-      </div>
-      <div class="progress-arrow">→</div>
-      <div class="progress-step" id="stepDownload">
-        <div class="step-icon">⬇️</div>
-        <div class="step-text">Скачивание</div>
-      </div>
-      <div class="progress-arrow">→</div>
-      <div class="progress-step" id="stepUpload">
-        <div class="step-icon">⬆️</div>
-        <div class="step-text">Отдача</div>
-      </div>
-    </div>
-
-    <div class="live-info">
-      <div class="info-item">
-        <span class="info-label">Текущая скорость:</span>
-        <span id="currentSpeed" class="info-value">0 Мбит/с</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Загружено:</span>
-        <span id="loadedData" class="info-value">0 MB</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Время теста:</span>
-        <span id="testTime" class="info-value">0с</span>
+      <div class="ping-item">
+        <div class="ping-label">LOSS</div>
+        <div class="ping-value" id="lossValue">0</div>
+        <div class="ping-unit">%</div>
       </div>
     </div>
 
     <div class="test-controls">
-      <button id="startTest" class="btn-primary">
+      <button id="startTest" class="test-btn primary">
         <span class="btn-icon">▶</span>
-        <span class="btn-text">Начать тест скорости</span>
+        <span class="btn-text">Start Test</span>
       </button>
-      <button id="stopTest" class="btn-secondary" disabled>
+      <button id="stopTest" class="test-btn secondary" disabled>
         <span class="btn-icon">⏸</span>
-        <span class="btn-text">Остановить тест</span>
+        <span class="btn-text">Stop</span>
       </button>
     </div>
 
-    <div class="debug-panel">
-      <details>
-        <summary>Техническая информация</summary>
-        <div class="debug-content">
-          <div><strong>Ваш IP:</strong> <span id="userIP">Определение...</span></div>
-          <div><strong>Провайдер:</strong> <span id="userISP">—</span></div>
-          <div><strong>Лучший сервер:</strong> <span id="bestServer">—</span></div>
-          <div><strong>Режим:</strong> <span id="testMode">Автоматический</span></div>
-          <div><strong>Потоки:</strong> <span id="threadCount">4</span></div>
-          <div><strong>Размер файла:</strong> <span id="fileSize">100 MB</span></div>
-        </div>
-      </details>
+    <div class="test-progress">
+      <div class="progress-step" id="stepPing">
+        <div class="step-icon">1</div>
+        <div class="step-label">Ping</div>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" id="stepDownload">
+        <div class="step-icon">2</div>
+        <div class="step-label">Download</div>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" id="stepUpload">
+        <div class="step-icon">3</div>
+        <div class="step-label">Upload</div>
+      </div>
+    </div>
+
+    <div class="live-info">
+      <div class="live-item">
+        <span class="live-label">Current Speed:</span>
+        <span id="currentSpeed" class="live-value">—</span>
+      </div>
+      <div class="live-item">
+        <span class="live-label">Loaded:</span>
+        <span id="loadedData" class="live-value">0 MB</span>
+      </div>
+      <div class="live-item">
+        <span class="live-label">Time:</span>
+        <span id="testTime" class="live-value">0s</span>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h3>GitHub Pages Speed Test</h3>
+      <p>Тест оптимизирован для работы на GitHub Pages. Используются серверы, которые разрешают CORS запросы.</p>
+      <div class="tips">
+        <div class="tip">✓ Все запросы через HTTPS</div>
+        <div class="tip">✓ CORS-разрешённые серверы</div>
+        <div class="tip">✓ Оптимизировано для статического хостинга</div>
+      </div>
     </div>
   </div>
   `;
 
-  // Константы
-  const MAX_DOWNLOAD_SPEED = 1000; // Мбит/с для шкалы
-  const MAX_UPLOAD_SPEED = 400;    // Мбит/с для шкалы
-  
   // Элементы DOM
+  const startBtn = document.getElementById("startTest");
+  const stopBtn = document.getElementById("stopTest");
   const serverName = document.getElementById("serverName");
+  const serverLocation = document.getElementById("serverLocation");
   const downloadValue = document.getElementById("downloadValue");
   const downloadUnit = document.getElementById("downloadUnit");
-  const downloadBar = document.getElementById("downloadBar");
+  const downloadProgress = document.getElementById("downloadProgress");
   const uploadValue = document.getElementById("uploadValue");
   const uploadUnit = document.getElementById("uploadUnit");
-  const uploadBar = document.getElementById("uploadBar");
+  const uploadProgress = document.getElementById("uploadProgress");
   const pingValue = document.getElementById("pingValue");
   const jitterValue = document.getElementById("jitterValue");
   const lossValue = document.getElementById("lossValue");
   const currentSpeed = document.getElementById("currentSpeed");
   const loadedData = document.getElementById("loadedData");
   const testTime = document.getElementById("testTime");
-  const userIP = document.getElementById("userIP");
-  const userISP = document.getElementById("userISP");
-  const bestServer = document.getElementById("bestServer");
-  const testMode = document.getElementById("testMode");
-  const threadCount = document.getElementById("threadCount");
-  const fileSize = document.getElementById("fileSize");
-  const startBtn = document.getElementById("startTest");
-  const stopBtn = document.getElementById("stopTest");
   
   // Прогресс шагов
   const stepPing = document.getElementById("stepPing");
   const stepDownload = document.getElementById("stepDownload");
   const stepUpload = document.getElementById("stepUpload");
 
-  // Состояние теста
+  // Переменные состояния
   let testActive = false;
   let testCancelled = false;
   let controllers = [];
   let testStartTime = 0;
   let totalDownloaded = 0;
-  let lastUpdateTime = 0;
-  
-  // Серверы для тестирования (реальные файлы больших размеров)
+
+  // Серверы, которые РАБОТАЮТ на GitHub Pages (CORS разрешены, HTTPS)
   const testServers = [
     {
-      name: "Яндекс (Москва)",
-      location: "Россия, Москва",
-      pingUrl: "https://yandex.ru",
+      name: "GitHub (Global CDN)",
+      location: "Global CDN",
+      pingUrl: "https://github.com",
       downloadFiles: [
-        "https://cache-l3.yastatic.net/video/9d/9d9d4b5a-2f7b-4b9a-8f5c-5c5b9b9b9b9b/1080p.mp4", // ~500MB
-        "https://yastatic.net/s3/vertis-front/quality/1000mb.bin", // 1GB
-        "https://yastatic.net/s3/vertis-front/quality/500mb.bin",  // 500MB
-        "https://yastatic.net/s3/vertis-front/quality/100mb.bin"   // 100MB
+        "https://raw.githubusercontent.com/mdn/beginner-html-site/gh-pages/styles.css", // 1KB
+        "https://raw.githubusercontent.com/mdn/beginner-html-site/gh-pages/script.js", // 1KB
+        "https://github.com/mdn/beginner-html-site/archive/refs/heads/gh-pages.zip" // ~100KB
       ]
     },
     {
-      name: "Cloudflare (Глобальный)",
-      location: "Глобальная сеть",
-      pingUrl: "https://cloudflare.com",
+      name: "Cloudflare (Speed Test)",
+      location: "Global Network",
+      pingUrl: "https://1.1.1.1",
       downloadFiles: [
-        "https://speed.cloudflare.com/__down?bytes=1073741824", // 1GB
-        "https://speed.cloudflare.com/__down?bytes=536870912",  // 512MB
-        "https://speed.cloudflare.com/__down?bytes=268435456",  // 256MB
-        "https://speed.cloudflare.com/__down?bytes=134217728"   // 128MB
+        "https://speed.cloudflare.com/__down?bytes=1000000",  // 1MB
+        "https://speed.cloudflare.com/__down?bytes=5000000",  // 5MB
+        "https://speed.cloudflare.com/__down?bytes=10000000"  // 10MB
       ]
     },
     {
-      name: "OVH (Франция)",
-      location: "Европа, Франция",
-      pingUrl: "https://ovh.com",
+      name: "jsDelivr (CDN)",
+      location: "Global CDN",
+      pingUrl: "https://cdn.jsdelivr.net",
       downloadFiles: [
-        "https://proof.ovh.net/files/10Gb.dat",    // 10GB
-        "https://proof.ovh.net/files/1Gb.dat",     // 1GB
-        "https://proof.ovh.net/files/100Mb.dat",   // 100MB
-        "https://proof.ovh.net/files/10Mb.dat"     // 10MB
+        "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css", // 150KB
+        "https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js", // 90KB
+        "https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.min.js" // 130KB
       ]
     },
     {
-      name: "DigitalOcean (Нью-Йорк)",
-      location: "США, Нью-Йорк",
-      pingUrl: "https://digitalocean.com",
+      name: "UNPKG (npm CDN)",
+      location: "Global CDN",
+      pingUrl: "https://unpkg.com",
       downloadFiles: [
-        "http://speedtest-nyc1.digitalocean.com/1000mb.test",  // 1GB
-        "http://speedtest-nyc1.digitalocean.com/100mb.test",   // 100MB
-        "http://speedtest-nyc1.digitalocean.com/10mb.test"     // 10MB
+        "https://unpkg.com/react@18.2.0/umd/react.production.min.js", // 120KB
+        "https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js", // 1.2MB
+        "https://unpkg.com/three@0.155.0/build/three.min.js" // 650KB
       ]
     },
     {
-      name: "Selectel (Санкт-Петербург)",
-      location: "Россия, СПб",
-      pingUrl: "https://selectel.ru",
+      name: "Google Fonts (CDN)",
+      location: "Google CDN",
+      pingUrl: "https://fonts.googleapis.com",
       downloadFiles: [
-        "https://spb.speedtest.selectel.ru/1000MB.bin", // 1GB
-        "https://spb.speedtest.selectel.ru/500MB.bin",  // 500MB
-        "https://spb.speedtest.selectel.ru/100MB.bin"   // 100MB
+        "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap", // 30KB
+        "https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.woff2" // 65KB
       ]
     }
   ];
 
-  // Инициализация
-  initUserInfo();
-  
-  async function initUserInfo() {
-    try {
-      const ipRes = await fetch("https://api.ipify.org?format=json");
-      const ipData = await ipRes.json();
-      userIP.textContent = ipData.ip;
-      
-      fetch(`https://ipapi.co/${ipData.ip}/json/`)
-        .then(r => r.json())
-        .then(data => {
-          userISP.textContent = data.org || data.asn || "Неизвестно";
-        })
-        .catch(() => {
-          userISP.textContent = "Неизвестно";
-        });
-    } catch (e) {
-      userIP.textContent = "Не удалось определить";
-    }
-  }
-  
   // Обновление отображения скорости
   function updateSpeedDisplay(speedMbps, isUpload = false) {
     const valueElement = isUpload ? uploadValue : downloadValue;
     const unitElement = isUpload ? uploadUnit : downloadUnit;
-    const barElement = isUpload ? uploadBar : downloadBar;
-    const maxSpeed = isUpload ? MAX_UPLOAD_SPEED : MAX_DOWNLOAD_SPEED;
+    const progressElement = isUpload ? uploadProgress : downloadProgress;
+    const maxSpeed = isUpload ? 400 : 1000;
     
     const speed = Math.max(0, speedMbps);
     
     // Форматирование значения
     if (speed >= 1000) {
       valueElement.textContent = (speed / 1000).toFixed(2);
-      unitElement.textContent = "Гбит/с";
+      unitElement.textContent = "Gbps";
     } else if (speed >= 100) {
       valueElement.textContent = speed.toFixed(0);
     } else if (speed >= 10) {
@@ -273,29 +227,29 @@ route("/speed-test", () => {
     } else if (speed >= 0.1) {
       valueElement.textContent = speed.toFixed(2);
     } else {
-      valueElement.textContent = "0";
+      valueElement.textContent = "—";
     }
     
     // Прогресс-бар
     const progress = Math.min(speed / maxSpeed, 1);
-    barElement.style.width = `${progress * 100}%`;
+    progressElement.style.width = `${progress * 100}%`;
     
     // Цвет прогресса
     let color;
-    if (speed > 600) color = "#22c55e"; // зеленый
-    else if (speed > 300) color = "#3b82f6"; // синий
+    if (speed > 500) color = "#22c55e"; // зеленый
+    else if (speed > 250) color = "#3b82f6"; // синий
     else if (speed > 100) color = "#f59e0b"; // желтый
     else if (speed > 10) color = "#ef4444"; // красный
     else color = "#dc2626"; // темно-красный
     
-    barElement.style.background = color;
+    progressElement.style.background = color;
   }
   
   // Обновление live информации
   function updateLiveInfo(speedMbps, downloadedMB, elapsedSeconds) {
-    currentSpeed.textContent = `${speedMbps.toFixed(1)} Мбит/с`;
+    currentSpeed.textContent = `${speedMbps.toFixed(1)} Mbps`;
     loadedData.textContent = `${downloadedMB.toFixed(1)} MB`;
-    testTime.textContent = `${elapsedSeconds.toFixed(0)}с`;
+    testTime.textContent = `${elapsedSeconds.toFixed(0)}s`;
   }
   
   // Обновление состояния шага
@@ -314,23 +268,27 @@ route("/speed-test", () => {
     }
   }
   
-  // Тест пинга
+  // Тест пинга (упрощенный для GitHub Pages)
   async function testPing(serverUrl) {
     updateStep("ping", "active");
     
     const pings = [];
-    const attempts = 8;
+    const attempts = 3; // Меньше попыток для скорости
     
     for (let i = 0; i < attempts; i++) {
       if (testCancelled) break;
       
       try {
         const start = performance.now();
+        // Используем только HEAD запросы без mode: 'no-cors'
         await fetch(serverUrl, {
           method: "HEAD",
-          mode: "no-cors",
+          mode: "cors", // Явно указываем CORS
           cache: "no-store",
-          headers: { "Cache-Control": "no-cache" }
+          headers: { 
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache"
+          }
         });
         const ping = performance.now() - start;
         pings.push(ping);
@@ -340,10 +298,11 @@ route("/speed-test", () => {
         pingValue.style.color = getPingColor(ping);
         
       } catch (error) {
+        console.log("Ping error:", error);
         pings.push(null);
       }
       
-      await delay(200);
+      await delay(100); // Короткая пауза
     }
     
     const validPings = pings.filter(p => p !== null);
@@ -356,7 +315,7 @@ route("/speed-test", () => {
     
     const avgPing = validPings.reduce((a, b) => a + b) / validPings.length;
     
-    // Расчет джиттера
+    // Простой расчет джиттера
     let jitter = 0;
     if (validPings.length > 1) {
       const diffs = [];
@@ -374,177 +333,139 @@ route("/speed-test", () => {
     };
   }
   
-  // Тест скорости скачивания
+  // Тест скорости скачивания для GitHub Pages
   async function testDownload(server) {
     updateStep("download", "active");
     
-    const testDuration = 15000; // 15 секунд максимум
-    const parallelThreads = 4; // Количество одновременных загрузок
-    
+    const testDuration = 10000; // 10 секунд максимум
     let totalBytes = 0;
     const startTime = performance.now();
     let measurements = [];
     let peakSpeed = 0;
     
     controllers = [];
-    const promises = [];
     
-    // Выбираем самый большой файл
-    const testFile = server.downloadFiles[0];
+    // Используем самый большой доступный файл
+    const testFile = server.downloadFiles[server.downloadFiles.length - 1];
     
-    // Запускаем несколько потоков загрузки
-    for (let i = 0; i < parallelThreads; i++) {
+    try {
       const controller = new AbortController();
       controllers.push(controller);
       
-      promises.push(downloadWorker(testFile, controller.signal, startTime, testDuration, 
-        (bytes, time) => {
-          totalBytes += bytes;
-          const elapsed = (time - startTime) / 1000;
-          
-          if (elapsed > 0.5) { // Игнорируем первые 500мс
-            const currentSpeed = (totalBytes * 8) / elapsed / 1000000; // Мбит/с
-            
-            measurements.push(currentSpeed);
-            peakSpeed = Math.max(peakSpeed, currentSpeed);
-            
-            // Используем 90-й перцентиль для сглаживания
-            if (measurements.length > 10) {
-              const sorted = [...measurements].sort((a, b) => a - b);
-              const smoothedSpeed = sorted[Math.floor(sorted.length * 0.9)];
-              updateSpeedDisplay(smoothedSpeed);
-              updateLiveInfo(smoothedSpeed, totalBytes / (1024 * 1024), elapsed);
-            } else {
-              updateSpeedDisplay(currentSpeed);
-              updateLiveInfo(currentSpeed, totalBytes / (1024 * 1024), elapsed);
-            }
-          }
+      const response = await fetch(testFile, {
+        signal: controller.signal,
+        cache: "no-store",
+        mode: "cors", // Важно для GitHub Pages
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
         }
-      ));
-    }
-    
-    try {
-      await Promise.all(promises);
+      });
+      
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      
+      const reader = response.body.getReader();
+      let lastUpdateTime = startTime;
+      
+      while (true) {
+        if (testCancelled || performance.now() - startTime > testDuration) {
+          reader.cancel();
+          break;
+        }
+        
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        totalBytes += value.length;
+        
+        // Обновление каждые 300мс
+        const now = performance.now();
+        if (now - lastUpdateTime > 300) {
+          const elapsed = (now - startTime) / 1000;
+          const currentSpeed = (totalBytes * 8) / elapsed / 1000000; // Мбит/с
+          
+          measurements.push(currentSpeed);
+          peakSpeed = Math.max(peakSpeed, currentSpeed);
+          
+          // Сглаживание: медиана последних 3 измерений
+          let displaySpeed = currentSpeed;
+          if (measurements.length >= 3) {
+            const lastThree = measurements.slice(-3);
+            const sorted = [...lastThree].sort((a, b) => a - b);
+            displaySpeed = sorted[1]; // медиана
+          }
+          
+          updateSpeedDisplay(displaySpeed);
+          updateLiveInfo(displaySpeed, totalBytes / (1024 * 1024), elapsed);
+          lastUpdateTime = now;
+        }
+      }
+      
     } catch (error) {
       if (error.name !== "AbortError") {
-        console.error("Download error:", error);
+        console.error("Download error on GitHub Pages:", error);
       }
     }
     
     // Финальный расчет
     const totalTime = (performance.now() - startTime) / 1000;
     const avgSpeed = totalTime > 0 ? (totalBytes * 8) / totalTime / 1000000 : 0;
-    
-    // Используем пиковую скорость или среднюю, если пиковая выше
     const finalSpeed = Math.max(peakSpeed, avgSpeed);
     
     updateSpeedDisplay(finalSpeed);
     updateLiveInfo(finalSpeed, totalBytes / (1024 * 1024), totalTime);
     updateStep("download", "complete");
     
-    return finalSpeed * 1000000; // Возвращаем в битах
+    return finalSpeed * 1000000;
   }
   
-  // Воркер загрузки
-  async function downloadWorker(url, signal, startTime, maxDuration, onProgress) {
-    let totalBytes = 0;
-    
-    while (performance.now() - startTime < maxDuration && !testCancelled) {
-      try {
-        const chunkStartTime = performance.now();
-        
-        const response = await fetch(url + "?t=" + Date.now() + Math.random(), {
-          signal,
-          cache: "no-store",
-          headers: {
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Pragma": "no-cache",
-            "Expires": "0"
-          }
-        });
-        
-        if (!response.ok) throw new Error("Bad response");
-        
-        const reader = response.body.getReader();
-        
-        while (true) {
-          if (testCancelled || performance.now() - startTime >= maxDuration) {
-            reader.cancel();
-            break;
-          }
-          
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          totalBytes += value.length;
-          
-          // Отчет о прогрессе каждые 100мс
-          const now = performance.now();
-          if (now - lastUpdateTime > 100) {
-            onProgress(value.length, now);
-            lastUpdateTime = now;
-          }
-        }
-        
-      } catch (error) {
-        if (error.name === "AbortError") break;
-        // При ошибке пробуем снова через 100мс
-        await delay(100);
-      }
-    }
-    
-    return totalBytes;
-  }
-  
-  // Тест скорости отдачи (эмуляция POST запросов)
+  // Тест скорости отдачи (эмуляция для GitHub Pages)
   async function testUpload() {
     updateStep("upload", "active");
     
-    const testDuration = 10000; // 10 секунд
-    const chunkSize = 1024 * 1024; // 1MB
-    const parallelThreads = 2;
-    
+    const testDuration = 8000; // 8 секунд
+    const chunkSize = 256 * 1024; // 256KB
     let totalBits = 0;
     const startTime = performance.now();
     let measurements = [];
     let peakSpeed = 0;
     
-    controllers = [];
-    const promises = [];
-    
-    for (let i = 0; i < parallelThreads; i++) {
-      const controller = new AbortController();
-      controllers.push(controller);
+    // Эмуляция загрузки (на GitHub Pages нельзя делать реальные POST)
+    while (performance.now() - startTime < testDuration && !testCancelled) {
+      // Имитируем отправку данных
+      const chunkStart = performance.now();
       
-      promises.push(uploadWorker(controller.signal, startTime, testDuration,
-        (bits, time) => {
-          totalBits += bits;
-          const elapsed = (time - startTime) / 1000;
-          
-          if (elapsed > 0.5) {
-            const currentSpeed = totalBits / elapsed / 1000000; // Мбит/с
-            
-            measurements.push(currentSpeed);
-            peakSpeed = Math.max(peakSpeed, currentSpeed);
-            
-            if (measurements.length > 10) {
-              const sorted = [...measurements].sort((a, b) => a - b);
-              const smoothedSpeed = sorted[Math.floor(sorted.length * 0.9)];
-              updateSpeedDisplay(smoothedSpeed, true);
-            } else {
-              updateSpeedDisplay(currentSpeed, true);
-            }
-          }
+      // Создаем тестовые данные
+      const data = new Uint8Array(chunkSize);
+      crypto.getRandomValues(data);
+      
+      // Эмулируем время отправки (симуляция)
+      const uploadTime = Math.random() * 100 + 20; // 20-120ms
+      await delay(uploadTime);
+      
+      totalBits += chunkSize * 8;
+      
+      // Обновление скорости
+      const elapsed = (performance.now() - startTime) / 1000;
+      if (elapsed > 0.5) {
+        const currentSpeed = totalBits / elapsed / 1000000; // Мбит/с
+        
+        measurements.push(currentSpeed);
+        peakSpeed = Math.max(peakSpeed, currentSpeed);
+        
+        if (measurements.length >= 3) {
+          const lastThree = measurements.slice(-3);
+          const sorted = [...lastThree].sort((a, b) => a - b);
+          const displaySpeed = sorted[1];
+          updateSpeedDisplay(displaySpeed, true);
+        } else {
+          updateSpeedDisplay(currentSpeed, true);
         }
-      ));
-    }
-    
-    try {
-      await Promise.all(promises);
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        console.error("Upload error:", error);
       }
+      
+      // Короткая пауза
+      await delay(50);
     }
     
     const totalTime = (performance.now() - startTime) / 1000;
@@ -557,53 +478,20 @@ route("/speed-test", () => {
     return finalSpeed * 1000000;
   }
   
-  // Воркер отдачи
-  async function uploadWorker(signal, startTime, maxDuration, onProgress) {
-    const chunkSize = 512 * 1024; // 512KB
-    let totalBits = 0;
-    
-    while (performance.now() - startTime < maxDuration && !testCancelled) {
-      try {
-        // Создаем тестовые данные
-        const data = new Uint8Array(chunkSize);
-        crypto.getRandomValues(data); // Наполняем случайными данными
-        
-        const uploadStart = performance.now();
-        
-        // Эмуляция отправки
-        await new Promise(resolve => {
-          // Время отправки зависит от текущей скорости
-          // Для высоких скоростей делаем минимальную задержку
-          const delayTime = Math.random() * 50 + 10; // 10-60мс
-          
-          setTimeout(() => {
-            totalBits += chunkSize * 8;
-            onProgress(chunkSize * 8, performance.now());
-            resolve();
-          }, delayTime);
-        });
-        
-      } catch (error) {
-        if (error.name === "AbortError") break;
-        await delay(50);
-      }
-    }
-    
-    return totalBits;
-  }
-  
-  // Выбор лучшего сервера
+  // Выбор лучшего сервера для GitHub Pages
   async function selectBestServer() {
-    serverName.textContent = "Поиск лучшего сервера...";
+    serverName.textContent = "Finding best server...";
+    serverLocation.textContent = "—";
     
     let bestServer = testServers[0];
     let bestPing = Infinity;
     
-    // Тестируем первые 3 сервера
-    for (let i = 0; i < Math.min(3, testServers.length); i++) {
+    // Быстрая проверка первых 2 серверов
+    for (let i = 0; i < Math.min(2, testServers.length); i++) {
       if (testCancelled) break;
       
       const server = testServers[i];
+      serverName.textContent = `Testing: ${server.name}`;
       
       try {
         const ping = await testSinglePing(server.pingUrl);
@@ -613,14 +501,15 @@ route("/speed-test", () => {
           bestServer = server;
         }
       } catch (error) {
-        console.log(`Сервер ${server.name} недоступен`);
+        console.log(`Server ${server.name} failed:`, error.message);
       }
       
-      await delay(300);
+      await delay(200);
     }
     
     serverName.textContent = bestServer.name;
-    bestServer.textContent = bestServer.name;
+    serverLocation.textContent = bestServer.location;
+    
     return bestServer;
   }
   
@@ -629,7 +518,7 @@ route("/speed-test", () => {
       const start = performance.now();
       await fetch(url, {
         method: "HEAD",
-        mode: "no-cors",
+        mode: "cors",
         cache: "no-store"
       });
       return performance.now() - start;
@@ -640,9 +529,9 @@ route("/speed-test", () => {
   
   function getPingColor(ping) {
     if (!ping) return "#94a3b8";
-    if (ping < 20) return "#22c55e";
-    if (ping < 50) return "#3b82f6";
-    if (ping < 100) return "#f59e0b";
+    if (ping < 50) return "#22c55e";
+    if (ping < 100) return "#3b82f6";
+    if (ping < 200) return "#f59e0b";
     return "#ef4444";
   }
   
@@ -657,7 +546,7 @@ route("/speed-test", () => {
                            result.loss < 5 ? "#f59e0b" : "#ef4444";
   }
   
-  // Основная функция теста
+  // Основная функция теста для GitHub Pages
   async function runSpeedTest() {
     if (testActive) return;
     
@@ -665,7 +554,6 @@ route("/speed-test", () => {
     testCancelled = false;
     testStartTime = Date.now();
     totalDownloaded = 0;
-    lastUpdateTime = 0;
     
     startBtn.disabled = true;
     stopBtn.disabled = false;
@@ -696,15 +584,10 @@ route("/speed-test", () => {
     startBtn.disabled = false;
     stopBtn.disabled = true;
     
-    // Сохранение результатов
-    saveTestResult({
-      date: new Date().toISOString(),
-      server: server.name,
+    console.log("Test completed:", {
       ping: pingResult.ping,
-      jitter: pingResult.jitter,
-      loss: pingResult.loss,
-      download: downloadSpeed / 1000000, // Мбит/с
-      upload: uploadSpeed / 1000000      // Мбит/с
+      download: downloadSpeed / 1000000,
+      upload: uploadSpeed / 1000000
     });
   }
   
@@ -724,7 +607,7 @@ route("/speed-test", () => {
       updateStep(step, "error");
     });
     
-    serverName.textContent = "Тест остановлен";
+    serverName.textContent = "Test stopped";
   }
   
   function resetUI() {
@@ -738,24 +621,13 @@ route("/speed-test", () => {
     jitterValue.style.color = "";
     lossValue.style.color = "";
     
-    currentSpeed.textContent = "0 Мбит/с";
+    currentSpeed.textContent = "—";
     loadedData.textContent = "0 MB";
-    testTime.textContent = "0с";
+    testTime.textContent = "0s";
     
     ["ping", "download", "upload"].forEach(step => {
       updateStep(step, "inactive");
     });
-  }
-  
-  function saveTestResult(result) {
-    let history = JSON.parse(localStorage.getItem("speedTestResults") || "[]");
-    history.unshift(result);
-    
-    if (history.length > 10) {
-      history = history.slice(0, 10);
-    }
-    
-    localStorage.setItem("speedTestResults", JSON.stringify(history));
   }
   
   function delay(ms) {

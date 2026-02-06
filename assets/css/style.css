@@ -1860,55 +1860,41 @@ body.no-scroll {
   background: linear-gradient(135deg, #f59e0b, #d97706);
 }
 /*--------------------------------------------------------------------------------------------------------------------------------*/
+/* Speed Test для GitHub Pages */
 .speed-test-card {
-  max-width: 900px;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 2rem;
 }
 
-.test-header {
+.speed-test-header {
   text-align: center;
   margin-bottom: 2rem;
-}
-
-.test-header h1 {
-  font-size: 2rem;
-  color: var(--text-color);
-  margin-bottom: 0.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .server-info {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--surface-color);
-  border-radius: 20px;
-  border: 1px solid var(--border-color);
+  margin-top: 1rem;
 }
 
-.server-label {
+.server-name {
+  font-weight: 600;
+  color: var(--primary-color);
+  font-size: 1.1rem;
+}
+
+.server-location {
   color: var(--text-secondary);
   font-size: 0.9rem;
+  margin-top: 0.25rem;
 }
 
-.server-value {
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
-/* Спидометры */
+/* Speed meters */
 .speed-meters {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
   margin: 2rem 0;
-}
-
-@media (max-width: 768px) {
-  .speed-meters {
-    grid-template-columns: 1fr;
-  }
 }
 
 .speed-meter {
@@ -1918,91 +1904,84 @@ body.no-scroll {
   border: 1px solid var(--border-color);
 }
 
-.meter-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
 .meter-title {
   font-size: 0.9rem;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 1px;
+  margin-bottom: 1rem;
   font-weight: 600;
 }
 
-.meter-display {
-  text-align: right;
-}
-
-.speed-number {
-  font-size: 2.5rem;
+.meter-value {
+  font-size: 3rem;
   font-weight: 700;
   color: var(--text-color);
   line-height: 1;
+  margin-bottom: 1rem;
   font-family: 'SF Mono', monospace;
 }
 
-.speed-unit {
-  font-size: 1rem;
+.meter-unit {
+  font-size: 1.2rem;
   color: var(--text-secondary);
-  margin-left: 0.25rem;
+  margin-left: 0.5rem;
 }
 
+/* Progress bars */
 .progress-container {
   margin-top: 1rem;
 }
 
 .progress-bar {
-  height: 12px;
+  height: 10px;
   background: var(--border-color);
-  border-radius: 6px;
+  border-radius: 5px;
   overflow: hidden;
-  position: relative;
+  margin-bottom: 0.5rem;
 }
 
 .progress-fill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
-  border-radius: 6px;
-  transition: width 0.3s ease, background 0.3s ease;
+  border-radius: 5px;
+  transition: width 0.5s ease;
 }
 
 .progress-scale {
   display: flex;
   justify-content: space-between;
-  margin-top: 0.5rem;
   font-size: 0.8rem;
   color: var(--text-secondary);
 }
 
-/* Статистика качества */
-.quality-stats {
+/* Ping info */
+.ping-info {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
   margin: 2rem 0;
-}
-
-.stat-item {
+  padding: 1.5rem;
   background: var(--surface-color);
-  border-radius: 10px;
-  padding: 1rem;
-  text-align: center;
+  border-radius: 12px;
   border: 1px solid var(--border-color);
 }
 
-.stat-name {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.5rem;
+.ping-item {
+  text-align: center;
 }
 
-.stat-value {
-  font-size: 1.8rem;
+.ping-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.ping-value {
+  font-size: 2rem;
   font-weight: 700;
   color: var(--text-color);
   line-height: 1;
@@ -2010,12 +1989,65 @@ body.no-scroll {
   font-family: 'SF Mono', monospace;
 }
 
-.stat-unit {
+.ping-unit {
   font-size: 0.9rem;
   color: var(--text-secondary);
 }
 
-/* Прогресс теста */
+/* Test controls */
+.test-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.test-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.test-btn.primary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+}
+
+.test-btn.primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+.test-btn.secondary {
+  background: linear-gradient(135deg, #64748b, #475569);
+  color: white;
+}
+
+.test-btn.secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(100, 116, 139, 0.3);
+}
+
+.test-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-icon {
+  font-size: 1.2rem;
+}
+
+/* Test progress */
 .test-progress {
   display: flex;
   align-items: center;
@@ -2041,47 +2073,48 @@ body.no-scroll {
 }
 
 .progress-step.active .step-icon {
-  background: var(--primary-color);
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   color: white;
   transform: scale(1.1);
 }
 
 .progress-step.complete .step-icon {
-  background: #22c55e;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
 }
 
 .progress-step.error .step-icon {
-  background: #ef4444;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
 }
 
 .step-icon {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   transition: all 0.3s ease;
 }
 
-.step-text {
+.step-label {
   font-size: 0.9rem;
   color: var(--text-secondary);
   font-weight: 500;
 }
 
-.progress-arrow {
-  color: var(--text-secondary);
-  font-size: 1.5rem;
+.progress-line {
+  width: 40px;
+  height: 2px;
+  background: var(--border-color);
   margin: 0 0.5rem;
 }
 
-/* Live информация */
+/* Live info */
 .live-info {
   background: var(--surface-color);
   border-radius: 12px;
@@ -2090,7 +2123,7 @@ body.no-scroll {
   border: 1px solid var(--border-color);
 }
 
-.info-item {
+.live-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2098,40 +2131,69 @@ body.no-scroll {
   border-bottom: 1px solid var(--border-color);
 }
 
-.info-item:last-child {
+.live-item:last-child {
   border-bottom: none;
 }
 
-.info-label {
+.live-label {
   color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
-.info-value {
+.live-value {
   color: var(--text-color);
   font-weight: 600;
   font-family: 'SF Mono', monospace;
 }
 
-/* Кнопки управления */
-.test-controls {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 2rem 0;
+/* Info section */
+.info-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--surface-color);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
 }
 
-.btn-primary, .btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem 2rem;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0
+.info-section h3 {
+  color: var(--text-color);
+  margin-bottom: 1rem;
+}
+
+.info-section p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.tips {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.tip {
+  padding: 0.75rem;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 8px;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .speed-meters {
+    grid-template-columns: 1fr;
+  }
+  
+  .meter-value {
+    font-size: 2.5rem;
+  }
+  
+  .test-btn {
+    padding: 0.75rem 1.5rem;
+    min-width: 130px;
+  }
 }
 /*------------------------------------------------------------------------------------------------------------------------------------------*/
