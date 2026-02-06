@@ -3,10 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- В head index.html -->
+<meta name="application-name" content="DeviceCheck Pro">
+<meta name="apple-mobile-web-app-title" content="DeviceCheck">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Для разных платформ -->
+<link rel="icon" href="assets/icons/icon-192x192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
 <title>DeviceCheck Pro</title>
 
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f172a">
+
+<!-- iOS Safari -->
+<link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<!-- Старые браузеры -->
+<link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32x32.png">
+
+
+<!-- Windows -->
+<meta name="msapplication-TileColor" content="#0f172a">
+<meta name="msapplication-TileImage" content="assets/icons/icon-144x144.png">
 
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -20,7 +43,7 @@
 
   <nav id="nav">
     <a href="/" data-route="/">Главная</a>
-    <a href="/speed-test" data-route="/speed-test">Speed</a>
+
     <a href="/gamepad-test" data-route="/gamepad-test">Gamepad</a>
     <a href="/keyboard-test" data-route="/keyboard-test">Keyboard</a>
     <a href="/mouse-test" data-route="/mouse-test">Mouse</a>
@@ -36,7 +59,7 @@
 <main id="app"></main>
 
 <script src="assets/js/app.js"></script>
-<script src="assets/js/speed-test.js"></script>
+
 <script src="assets/js/gamepad.js"></script>
 <script src="assets/js/keyboard.js"></script>
 <script src="assets/js/mouse.js"></script>

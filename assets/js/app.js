@@ -107,13 +107,7 @@ route("/", ()=>{
         <p class="section-subtitle">Выберите нужный тест для диагностики вашего устройства</p>
         
         <div class="tools-grid">
-          <a href="/speed-test" class="tool-card" data-route="/speed-test">
-            <div class="tool-icon">📶</div>
-            <h3>Speed Test</h3>
-            <p>Измерение скорости интернета (Ping, Download, Upload)</p>
-            <div class="tool-badge">Интернет</div>
-          </a>
-          
+
           <a href="/keyboard-test" class="tool-card" data-route="/keyboard-test">
             <div class="tool-icon">⌨️</div>
             <h3>Keyboard Test</h3>
@@ -438,6 +432,26 @@ window.addEventListener('DOMContentLoaded', () => {
   // Рендерим начальную страницу
   render();
 });
-
+// Проверка поддержки SVG в манифесте
+if ('serviceWorker' in navigator && 'manifest' in document) {
+  navigator.serviceWorker.ready.then(registration => {
+    if (registration.active) {
+      console.log('Service Worker активен');
+      
+      // Проверяем, загрузилась ли SVG-иконка
+      fetch('assets/icons/icon.svg')
+        .then(response => {
+          if (response.ok) {
+            console.log('✅ SVG иконка доступна');
+          } else {
+            console.warn('⚠️ SVG иконка не найдена, используем PNG');
+          }
+        })
+        .catch(() => {
+          console.warn('⚠️ Не удалось загрузить SVG иконку');
+        });
+    }
+  });
+}
 // Также вызываем render при полной загрузке страницы
 window.addEventListener('load', render);
