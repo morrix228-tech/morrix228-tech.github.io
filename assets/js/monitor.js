@@ -2,7 +2,7 @@ route("/monitor-test", () => {
   app.innerHTML = `
   <div class="card">
     <h2>Monitor Test</h2>
-    <p>Клик — fullscreen | ← → смена режима | Esc — выход</p>
+    <p>Клик — fullscreen | ← → смена режима | Esc — выход на главную</p>
     <canvas id="mon"></canvas>
   </div>
   `;
@@ -21,32 +21,44 @@ route("/monitor-test", () => {
   ];
 
   let mode = 0;
+  let isFullscreen = false;
 
   function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    if (isFullscreen) {
+      // В полноэкранном режиме - на весь экран
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      canvas.classList.add("monitor-fullscreen");
+    } else {
+      // В обычном режиме - в карточке
+      const card = canvas.closest('.card');
+      const cardWidth = card.clientWidth;
+      canvas.width = cardWidth;
+      canvas.height = cardWidth * 0.75; // Соотношение 4:3
+      canvas.classList.remove("monitor-fullscreen");
+    }
     modes[mode]();
   }
 
   function fill(color){
     ctx.fillStyle = color;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
   function gradient(){
-    const g = ctx.createLinearGradient(0,0,canvas.width,0);
-    g.addColorStop(0,"black");
-    g.addColorStop(1,"white");
+    const g = ctx.createLinearGradient(0, 0, canvas.width, 0);
+    g.addColorStop(0, "black");
+    g.addColorStop(1, "white");
     ctx.fillStyle = g;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
   function checker(){
     const s = 40;
-    for(let y=0;y<canvas.height;y+=s){
-      for(let x=0;x<canvas.width;x+=s){
-        ctx.fillStyle = ((x+y)/s)%2?"#000":"#fff";
-        ctx.fillRect(x,y,s,s);
+    for(let y = 0; y < canvas.height; y += s){
+      for(let x = 0; x < canvas.width; x += s){
+        ctx.fillStyle = ((x + y) / s) % 2 ? "#000" : "#fff";
+        ctx.fillRect(x, y, s, s);
       }
     }
   }
@@ -59,47 +71,50 @@ route("/monitor-test", () => {
   canvas.onclick = () => {
     if (!document.fullscreenElement) {
       canvas.requestFullscreen();
-      canvas.classList.add("monitor-fullscreen");
+      isFullscreen = true;
       resize();
     }
   };
 
+  // Обработчик изменения полноэкранного режима
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      // Вышли из полноэкранного режима
+      isFullscreen = false;
+      resize();
+    } else {
+      // Вошли в полноэкранный режим
+      isFullscreen = true;
+      resize();
+    }
+  });
+
   document.onkeydown = e => {
+    if (e.key === "Escape") {
+      if (document.fullscreenElement) {
+        // Выходим из полноэкранного режима
+        document.exitFullscreen();
+      } else {
+        // Если не в полноэкранном режиме - переход на главную
+        navigate('/');
+      }
+      return;
+    }
+    
+    // Стрелки работают только в полноэкранном режиме
     if (!document.fullscreenElement) return;
     
     if (e.key === "ArrowRight") next(1);
     if (e.key === "ArrowLeft") next(-1);
-    
-    if (e.key === "Escape") {
-      e.preventDefault();
-      
-      // Сначала выходим из полноэкранного режима
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {}).then(() => {
-          // Затем переходим на главную
-          setTimeout(() => {
-            // Используем ваш навигационный метод
-            if (typeof navigate === 'function') {
-              navigate('/');
-            } else if (typeof window.history !== 'undefined') {
-              window.history.pushState({}, '', '/');
-              // Триггерим событие для роутера
-              window.dispatchEvent(new PopStateEvent('popstate'));
-            }
-          }, 100);
-        });
-      }
+  };
+
+  // При изменении размера окна
+  window.onresize = () => {
+    if (isFullscreen) {
+      resize();
     }
   };
 
-  // Также обрабатываем выход из полноэкранного режима другим способом
-  document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-      // Если вышел из полноэкранного режима (например, нажал Esc вне нашего обработчика)
-      canvas.classList.remove("monitor-fullscreen");
-    }
-  });
-
-  window.onresize = resize;
+  // Инициализация
   resize();
 });
