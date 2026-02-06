@@ -66,14 +66,39 @@ route("/monitor-test", () => {
 
   document.onkeydown = e => {
     if (!document.fullscreenElement) return;
+    
     if (e.key === "ArrowRight") next(1);
     if (e.key === "ArrowLeft") next(-1);
+    
     if (e.key === "Escape") {
-      document.exitFullscreen();
-      canvas.classList.remove("monitor-fullscreen");
-      setTimeout(() => location.reload(), 100);
+      e.preventDefault();
+      
+      // Сначала выходим из полноэкранного режима
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {}).then(() => {
+          // Затем переходим на главную
+          setTimeout(() => {
+            // Используем ваш навигационный метод
+            if (typeof navigate === 'function') {
+              navigate('/');
+            } else if (typeof window.history !== 'undefined') {
+              window.history.pushState({}, '', '/');
+              // Триггерим событие для роутера
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }
+          }, 100);
+        });
+      }
     }
   };
+
+  // Также обрабатываем выход из полноэкранного режима другим способом
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      // Если вышел из полноэкранного режима (например, нажал Esc вне нашего обработчика)
+      canvas.classList.remove("monitor-fullscreen");
+    }
+  });
 
   window.onresize = resize;
   resize();
