@@ -206,7 +206,7 @@ route("/", ()=>{
             <span>•</span>
             <span>Поддержка PWA</span>
             <span>•</span>
-            <span>© 2024</span>
+            <span>© 2026</span>
           </div>
         </div>
       </div>
