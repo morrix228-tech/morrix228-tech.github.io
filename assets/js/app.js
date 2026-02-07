@@ -1,3 +1,7 @@
+// Фикс для GitHub Pages
+if (!window.location.pathname.includes('/') && window.location.pathname !== '/') {
+    history.replaceState({}, '', '/');
+}
 const app = document.getElementById("app");
 const routes = {};
 
@@ -453,5 +457,6 @@ if ('serviceWorker' in navigator && 'manifest' in document) {
     }
   });
 }
+
 // Также вызываем render при полной загрузке страницы
 window.addEventListener('load', render);
