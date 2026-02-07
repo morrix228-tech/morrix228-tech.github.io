@@ -180,9 +180,6 @@ route("/", ()=>{
           <h2>Начните диагностику прямо сейчас!</h2>
           <p>Выберите инструмент выше или используйте навигацию вверху страницы.</p>
           <div class="cta-buttons">
-            <a href="/speed-test" class="cta-btn primary" data-route="/speed-test">
-              🚀 Начать с Speed Test
-            </a>
             <button onclick="navigate('/keyboard-test')" class="cta-btn secondary">
               ⌨️ Проверить клавиатуру
             </button>
