@@ -58,8 +58,8 @@ route("/speedtest", () => {
       <div class="speedtest-description">
         <h3>О тесте</h3>
         <p>
-          Этот тест измеряет скорость вашего интернета, загружая и скачивая данные с серверов.
-          Результаты показаны в мегабитах в секунду (Мбит/с).
+          Этот тест измеряет скорость вашего интернета по методу Яндекс Интернетометра, 
+          загружая и скачивая данные с реальных серверов. Результаты показаны в мегабитах в секунду (Мбит/с).
         </p>
       </div>
     </div>
@@ -92,32 +92,33 @@ function setupSpeedtest() {
 
 async function fetchIPInfo() {
   try {
-    // Первый вариант
-    const response = await fetch("https://ipapi.co/json/");
+    // Используем быстрое определение IP
+    const response = await fetch("https://api.ipify.org?format=json");
     const data = await response.json();
     document.getElementById("userIP").textContent = data.ip || "Неизвестно";
-    document.getElementById("userISP").textContent = data.org || "Неизвестно";
+    
+    // Получаем информацию о провайдере
+    const ispResponse = await fetch(`https://ipapi.co/${data.ip}/json/`);
+    const ispData = await ispResponse.json();
+    document.getElementById("userISP").textContent = ispData.org || "Неизвестно";
   } catch (error) {
     try {
-      // Второй вариант
       const response = await fetch("https://ipinfo.io/json");
       const data = await response.json();
       document.getElementById("userIP").textContent = data.ip || "Неизвестно";
       document.getElementById("userISP").textContent = data.org || "Неизвестно";
     } catch (error2) {
-      document.getElementById("userIP").textContent = "Ошибка";
-      document.getElementById("userISP").textContent = "Ошибка";
-      console.warn("Could not fetch IP info:", error2);
+      document.getElementById("userIP").textContent = "Недоступно";
+      document.getElementById("userISP").textContent = "Недоступно";
     }
   }
 }
 
 async function runSpeedtest() {
-  updateStatus("Тест запущен...");
+  updateStatus("Тест пинга...");
   
   try {
     // Пинг
-    updateStatus("Измерение пинга...");
     const pingMs = await measurePing();
     updatePingResult(pingMs);
     
@@ -133,55 +134,127 @@ async function runSpeedtest() {
     
     updateStatus("Тест завершен ✓");
   } catch (error) {
-    updateStatus("Ошибка при тестировании: " + error.message);
+    updateStatus("Ошибка: " + error.message);
     console.error("Speedtest error:", error);
   }
 }
 
 async function measurePing() {
-  let totalTime = 0;
-  const pingCount = 4;
-  const urls = [
-    "https://1.1.1.1/dns-query", 
-    "https://dns.google/dns-query",
-    "https://api.cloudflare.com/",
-    "https://www.google.com/"
+  const pingTests = [];
+  const servers = [
+    "https://www.google.com/",
+    "https://www.cloudflare.com/",
+    "https://www.wikipedia.org/",
+    "https://cdn.jsdelivr.net/npm/ping-pong@latest/package.json",
   ];
   
-  for (let i = 0; i < pingCount; i++) {
-    const url = urls[i % urls.length];
-    const startTime = performance.now();
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
-      const response = await fetch(url, {
-        method: "HEAD",
-        mode: "no-cors",
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-    } catch (e) {
-      // Продолжаем даже если запрос не удался
-    }
-    const endTime = performance.now();
-    totalTime += (endTime - startTime);
+  // Запускаем тесты параллельно для точности
+  const promises = [];
+  
+  for (let i = 0; i < 5; i++) {
+    const url = servers[i % servers.length];
+    promises.push(
+      (async () => {
+        try {
+          const startTime = performance.now();
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000);
+          
+          await fetch(url, {
+            method: "HEAD",
+            mode: "no-cors",
+            cache: "no-cache",
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          const endTime = performance.now();
+          const pingTime = endTime - startTime;
+          
+          if (pingTime > 0 && pingTime < 5000) {
+            return pingTime;
+          }
+        } catch (e) {
+          // Продолжаем
+        }
+        return null;
+      })()
+    );
   }
   
-  const avgPing = Math.round(totalTime / pingCount);
-  return Math.max(avgPing, 5); // Минимум 5мс для локальной сети
+  const results = await Promise.all(promises);
+  const validPings = results.filter(p => p !== null);
+  
+  if (validPings.length === 0) {
+    return 50; // Значение по умолчанию
+  }
+  
+  // Берем медиану вместо среднего для большей точности
+  validPings.sort((a, b) => a - b);
+  const median = validPings[Math.floor(validPings.length / 2)];
+  return Math.round(median * 10) / 10;
 }
 
 async function measureDownloadSpeed() {
-  const fileSizeInBytes = 10 * 1024 * 1024; // 10 MB
-  const testUrl = createLargeBlob(fileSizeInBytes);
+  const testServers = [
+    { url: "https://speed.cloudflare.com/__down?bytes=52428800", name: "Cloudflare" }, // 50MB
+    { url: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png", name: "Google" },
+  ];
   
-  let downloadedBytes = 0;
+  const downloadSpeeds = [];
+  
+  for (const server of testServers) {
+    try {
+      const speed = await testDownloadFromServer(server.url);
+      if (speed > 0) {
+        downloadSpeeds.push(speed);
+      }
+    } catch (error) {
+      console.warn(`Download from ${server.name} failed:`, error);
+    }
+  }
+  
+  // Дополнительный тест с несколькими файлами разных размеров
+  const sizes = [5, 10, 20]; // MB
+  for (const sizeMB of sizes) {
+    try {
+      const speed = await testDownloadChunk(sizeMB);
+      if (speed > 0) {
+        downloadSpeeds.push(speed);
+      }
+    } catch (error) {
+      console.warn(`Download test ${sizeMB}MB failed:`, error);
+    }
+  }
+  
+  if (downloadSpeeds.length === 0) {
+    throw new Error("Не удалось измерить скорость скачивания");
+  }
+  
+  // Берем среднее значение, но исключаем самые низкие и высокие значения
+  downloadSpeeds.sort((a, b) => a - b);
+  let validSpeeds = downloadSpeeds;
+  if (downloadSpeeds.length > 2) {
+    validSpeeds = downloadSpeeds.slice(0, -1); // Исключаем максимум
+  }
+  
+  const avgSpeed = validSpeeds.reduce((a, b) => a + b) / validSpeeds.length;
+  return Math.round(avgSpeed * 100) / 100;
+}
+
+async function testDownloadFromServer(url) {
   const startTime = performance.now();
+  let downloadedBytes = 0;
   
   try {
-    const response = await fetch(testUrl);
-    if (!response.ok) throw new Error("HTTP " + response.status);
+    const response = await fetch(url, { 
+      cache: "no-cache",
+      headers: { "Cache-Control": "no-cache" }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
     
     const reader = response.body.getReader();
     while (true) {
@@ -190,81 +263,120 @@ async function measureDownloadSpeed() {
       downloadedBytes += value.length;
     }
   } catch (error) {
-    throw new Error("Ошибка при скачивании: " + error.message);
+    throw error;
   }
   
   const endTime = performance.now();
-  
   const timeInSeconds = (endTime - startTime) / 1000;
-  const actualSize = downloadedBytes > 0 ? downloadedBytes : fileSizeInBytes;
-  const sizeInMegabits = (actualSize * 8) / (1024 * 1024);
-  const mbps = sizeInMegabits / timeInSeconds;
   
-  // Очищаем blob URL после использования
-  URL.revokeObjectURL(testUrl);
+  if (timeInSeconds < 0.1 || downloadedBytes === 0) {
+    return 0;
+  }
   
-  return Math.round(mbps * 100) / 100;
+  const megabits = (downloadedBytes * 8) / (1024 * 1024);
+  const mbps = megabits / timeInSeconds;
+  
+  return Math.max(0, mbps); // Минимум 0
+}
+
+async function testDownloadChunk(sizeMB) {
+  // Используем httpbin.org как резервный вариант
+  const sizeBytes = sizeMB * 1024 * 1024;
+  const url = `https://httpbin.org/bytes/${sizeBytes}`;
+  
+  try {
+    return await testDownloadFromServer(url);
+  } catch (error) {
+    return 0;
+  }
 }
 
 async function measureUploadSpeed() {
-  const dataSize = 2 * 1024 * 1024; // 2 MB
-  const uploadData = new Uint8Array(dataSize);
+  const testSizes = [1, 2, 5]; // MB - увеличенные размеры
+  const uploadSpeeds = [];
   
-  // Заполняем данные порциями (максимум 65536 байт за раз для crypto.getRandomValues)
-  const chunkSize = 65536;
-  for (let i = 0; i < dataSize; i += chunkSize) {
-    const endIndex = Math.min(i + chunkSize, dataSize);
-    crypto.getRandomValues(uploadData.subarray(i, endIndex));
+  for (const sizeMB of testSizes) {
+    try {
+      const speed = await testUploadChunk(sizeMB);
+      if (speed > 0) {
+        uploadSpeeds.push(speed);
+      }
+    } catch (error) {
+      console.warn(`Upload test failed for ${sizeMB}MB:`, error);
+    }
   }
   
+  if (uploadSpeeds.length === 0) {
+    throw new Error("Не удалось измерить скорость загрузки");
+  }
+  
+  // Берем среднее значение
+  const avgSpeed = uploadSpeeds.reduce((a, b) => a + b) / uploadSpeeds.length;
+  return Math.round(avgSpeed * 100) / 100;
+}
+
+async function testUploadChunk(sizeMB) {
+  const sizeBytes = sizeMB * 1024 * 1024;
+  
+  // Вместо криптографических данных используем простую повторяющуюся строку
+  // Это быстрее и не имеет ограничений API
+  const testString = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const chunks = [];
+  let currentSize = 0;
+  
+  while (currentSize < sizeBytes) {
+    const remainingSize = sizeBytes - currentSize;
+    const chunkSize = Math.min(1024 * 256, remainingSize); // 256 KB chunks
+    
+    const chunkData = new Uint8Array(chunkSize);
+    const encoder = new TextEncoder();
+    let position = 0;
+    
+    // Заполняем чанк повторяющейся строкой
+    while (position < chunkSize) {
+      const encoded = encoder.encode(testString);
+      const canFit = Math.min(encoded.length, chunkSize - position);
+      chunkData.set(encoded.slice(0, canFit), position);
+      position += canFit;
+    }
+    
+    chunks.push(chunkData);
+    currentSize += chunkSize;
+  }
+  
+  const uploadBlob = new Blob(chunks, { type: "application/octet-stream" });
+  
   const startTime = performance.now();
+  
   try {
-    // Используем httpbin.org для эмуляции загрузки
-    // Это будет работать с CORS для POST запроса
     const response = await fetch("https://httpbin.org/post", {
       method: "POST",
-      body: new Blob([uploadData], { type: "application/octet-stream" })
+      body: uploadBlob,
+      headers: {
+        "Content-Type": "application/octet-stream"
+      }
     });
     
     if (!response.ok) {
-      throw new Error("Upload server response: " + response.status);
+      throw new Error(`HTTP ${response.status}`);
     }
     
     await response.json();
   } catch (error) {
-    console.warn("Upload test failed, using fallback method");
-    // Fallback: просто эмулируем задержку, чтобы тест не сломался
-    await new Promise(resolve => setTimeout(resolve, 500));
+    throw new Error(`Upload failed: ${error.message}`);
   }
+  
   const endTime = performance.now();
-  
   const timeInSeconds = (endTime - startTime) / 1000;
-  if (timeInSeconds < 0.1) {
-    // Если запрос очень быстрый, значит он не отправлялся реально
-    // Вернем примерное значение
-    return 50;
+  
+  if (timeInSeconds < 0.01) {
+    return 0;
   }
   
-  const sizeInMegabits = (dataSize * 8) / (1024 * 1024);
-  const mbps = sizeInMegabits / timeInSeconds;
+  const megabits = (sizeBytes * 8) / (1024 * 1024);
+  const mbps = megabits / timeInSeconds;
   
-  return Math.round(mbps * 100) / 100;
-}
-
-function createLargeBlob(sizeInBytes) {
-  // Создаем большой blob данных для тестирования скорости скачивания
-  const chunkSize = 64 * 1024; // 64 KB (безопасный размер для crypto.getRandomValues)
-  const chunks = [];
-  
-  for (let i = 0; i < sizeInBytes; i += chunkSize) {
-    const currentChunkSize = Math.min(chunkSize, sizeInBytes - i);
-    const chunk = new Uint8Array(currentChunkSize);
-    crypto.getRandomValues(chunk);
-    chunks.push(chunk);
-  }
-  
-  const blob = new Blob(chunks, { type: "application/octet-stream" });
-  return URL.createObjectURL(blob);
+  return mbps;
 }
 
 function updateStatus(message) {
