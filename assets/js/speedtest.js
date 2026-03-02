@@ -209,7 +209,13 @@ async function measureDownloadSpeed() {
 async function measureUploadSpeed() {
   const dataSize = 2 * 1024 * 1024; // 2 MB
   const uploadData = new Uint8Array(dataSize);
-  crypto.getRandomValues(uploadData);
+  
+  // Заполняем данные порциями (максимум 65536 байт за раз для crypto.getRandomValues)
+  const chunkSize = 65536;
+  for (let i = 0; i < dataSize; i += chunkSize) {
+    const endIndex = Math.min(i + chunkSize, dataSize);
+    crypto.getRandomValues(uploadData.subarray(i, endIndex));
+  }
   
   const startTime = performance.now();
   try {
@@ -247,17 +253,13 @@ async function measureUploadSpeed() {
 
 function createLargeBlob(sizeInBytes) {
   // Создаем большой blob данных для тестирования скорости скачивания
-  const chunkSize = 1024 * 1024; // 1 MB
+  const chunkSize = 64 * 1024; // 64 KB (безопасный размер для crypto.getRandomValues)
   const chunks = [];
-  const testData = new Uint8Array(chunkSize);
-  
-  // Заполняем случайно для имитации реальных данных
-  crypto.getRandomValues(testData);
   
   for (let i = 0; i < sizeInBytes; i += chunkSize) {
-    const chunk = i + chunkSize > sizeInBytes 
-      ? testData.subarray(0, sizeInBytes - i)
-      : testData;
+    const currentChunkSize = Math.min(chunkSize, sizeInBytes - i);
+    const chunk = new Uint8Array(currentChunkSize);
+    crypto.getRandomValues(chunk);
     chunks.push(chunk);
   }
   
