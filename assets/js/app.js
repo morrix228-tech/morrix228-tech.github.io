@@ -256,10 +256,6 @@ function createMobileMenu() {
         <span class="nav-icon">🏠</span>
         <span>Главная</span>
       </a>
-      <a href="/speed-test" data-route="/speed-test" class="mobile-nav-link">
-        <span class="nav-icon">📶</span>
-        <span>Speed Test</span>
-      </a>
       <a href="/gamepad-test" data-route="/gamepad-test" class="mobile-nav-link">
         <span class="nav-icon">🎮</span>
         <span>Gamepad Test</span>
