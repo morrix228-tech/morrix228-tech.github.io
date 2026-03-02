@@ -272,6 +272,10 @@ function createMobileMenu() {
         <span class="nav-icon">🖥️</span>
         <span>Monitor Test</span>
       </a>
+      <a href="/speedtest" data-route="/speedtest" class="mobile-nav-link">
+        <span class="nav-icon">📡</span>
+        <span>Speed Test</span>
+      </a>
     </div>
   `;
   
